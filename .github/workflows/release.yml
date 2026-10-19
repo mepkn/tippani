@@ -1,6 +1,6 @@
-# Builds every app in this repo and attaches them all to one GitHub Release
-# (tag v<run number>, marked latest), so these links always serve the newest
-# build (the links on dash):
+# Builds every app in this repo and attaches them all to one GitHub Release,
+# tagged with the short commit SHA and marked latest, so these links always
+# serve the newest build (the links on dash):
 #   https://github.com/mepkn/note-shote/releases/latest/download/note-shote.apk
 # Started by hand: Actions tab → Release → Run workflow, or
 # `gh workflow run release.yml`.
@@ -108,8 +108,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # One release per commit: running it again on the same commit fails
+          # here instead of replacing that release.
           short="${GITHUB_SHA::7}"
-          gh release create "v${{ github.run_number }}" dist/* \
+          gh release create "$short" dist/* \
             -R "${{ github.repository }}" --target "$GITHUB_SHA" --latest \
-            --title "v${{ github.run_number }} ($short)" \
+            --title "$short" \
             --notes "Built from $short by run ${{ github.run_id }}. Android preview APK (arm64)."
