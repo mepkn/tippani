@@ -1,14 +1,14 @@
-# Builds the preview APK on a GitHub runner, saves it as a workflow artifact
-# named after the commit (kept 90 days, visible only to signed-in GitHub
-# users) and attaches it to a new GitHub Release marked latest, so
-# https://github.com/mepkn/<repo>/releases/latest/download/<repo>.apk always
-# serves the newest build (the link on dash). Started by hand: Actions tab → Android preview APK → Run
-# workflow, or `gh workflow run android-preview.yml`.
+# Builds every app in this repo and attaches them all to one GitHub Release
+# (tag v<run number>, marked latest), so these links always serve the newest
+# build (the links on dash):
+#   https://github.com/mepkn/note-shote/releases/latest/download/note-shote.apk
+# Started by hand: Actions tab → Release → Run workflow, or
+# `gh workflow run release.yml`.
 #
-# It runs `eas build --local`, so it uses no EAS cloud build quota; EAS still
-# supplies the signing key and the preview environment's variables. Needs the
-# EXPO_TOKEN repository secret.
-name: Android preview APK
+# Android: `eas build --local` on the runner, so it uses no EAS cloud build
+# quota; EAS still supplies the signing key and the preview environment's
+# variables. Needs the EXPO_TOKEN repository secret.
+name: Release
 
 on:
   workflow_dispatch:
@@ -18,11 +18,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: android-preview
+  group: release
   cancel-in-progress: false
 
 jobs:
-  build:
+  android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
@@ -69,9 +69,9 @@ jobs:
         run: npm ci
 
       - name: Gradle settings
-        # The default 2 GB heap runs out while merging dex files. A public
-        # repo's runner has 4 cores and 16 GB (a private one 2 and 7: use 4g
-        # there). The build cache reuses task outputs from the last run.
+          # The default 2 GB heap runs out while merging dex files. A public
+          # repo's runner has 4 cores and 16 GB (a private one 2 and 7: use 4g
+          # there). The build cache reuses task outputs from the last run.
         run: |
           mkdir -p ~/.gradle
           cat >> ~/.gradle/gradle.properties <<'PROPS'
@@ -81,33 +81,35 @@ jobs:
           PROPS
 
       - name: Build APK
-        id: build
         run: |
-          short=$(git rev-parse --short HEAD)
-          out="dist/${{ github.event.repository.name }}-preview-$short.apk"
           mkdir -p dist
           npx --yes eas-cli@latest build --platform android --profile preview \
-            --local --non-interactive --output "$out"
-          echo "apk=$out" >> "$GITHUB_OUTPUT"
-          echo "short=$short" >> "$GITHUB_OUTPUT"
+            --local --non-interactive --output "dist/note-shote.apk"
 
-      - name: Save APK
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-preview-${{ steps.build.outputs.short }}
-          path: mobile/${{ steps.build.outputs.apk }}
+          name: android
+          path: mobile/dist/note-shote.apk
           retention-days: 90
           if-no-files-found: error
 
+  publish:
+    # One release with every app, so each releases/latest/download link works.
+    # The files keep fixed names so those links never change.
+    needs: [android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
       - name: Publish release
-        # Tag android-<run number>, one release per build. The asset keeps a
-        # fixed name so the releases/latest/download link never changes.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          repo="${{ github.event.repository.name }}"
-          cp "${{ steps.build.outputs.apk }}" "dist/$repo.apk"
-          gh release create "android-${{ github.run_number }}" "dist/$repo.apk" \
-            --target "$GITHUB_SHA" --latest \
-            --title "Android preview ${{ github.run_number }} (${{ steps.build.outputs.short }})" \
-            --notes "Preview APK built from ${{ steps.build.outputs.short }} by run ${{ github.run_id }}."
+          short="${GITHUB_SHA::7}"
+          gh release create "v${{ github.run_number }}" dist/* \
+            -R "${{ github.repository }}" --target "$GITHUB_SHA" --latest \
+            --title "v${{ github.run_number }} ($short)" \
+            --notes "Built from $short by run ${{ github.run_id }}. Android preview APK (arm64)."
