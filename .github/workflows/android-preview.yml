@@ -1,6 +1,8 @@
-# Builds the preview APK on a GitHub runner and saves it as a workflow
-# artifact named after the commit (kept 90 days, visible only to signed-in
-# GitHub users). Started by hand: Actions tab → Android preview APK → Run
+# Builds the preview APK on a GitHub runner, saves it as a workflow artifact
+# named after the commit (kept 90 days, visible only to signed-in GitHub
+# users) and attaches it to a new GitHub Release marked latest, so
+# https://github.com/mepkn/<repo>/releases/latest/download/<repo>.apk always
+# serves the newest build (the link on dash). Started by hand: Actions tab → Android preview APK → Run
 # workflow, or `gh workflow run android-preview.yml`.
 #
 # It runs `eas build --local`, so it uses no EAS cloud build quota; EAS still
@@ -12,7 +14,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  # write: to create the release.
+  contents: write
 
 concurrency:
   group: android-preview
@@ -95,3 +98,16 @@ jobs:
           path: mobile/${{ steps.build.outputs.apk }}
           retention-days: 90
           if-no-files-found: error
+
+      - name: Publish release
+        # Tag android-<run number>, one release per build. The asset keeps a
+        # fixed name so the releases/latest/download link never changes.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo="${{ github.event.repository.name }}"
+          cp "${{ steps.build.outputs.apk }}" "dist/$repo.apk"
+          gh release create "android-${{ github.run_number }}" "dist/$repo.apk" \
+            --target "$GITHUB_SHA" --latest \
+            --title "Android preview ${{ github.run_number }} (${{ steps.build.outputs.short }})" \
+            --notes "Preview APK built from ${{ steps.build.outputs.short }} by run ${{ github.run_id }}."
