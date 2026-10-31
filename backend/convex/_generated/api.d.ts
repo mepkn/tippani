@@ -19,7 +19,6 @@ import type * as lib_kunji from "../lib/kunji.js";
 import type * as lib_limits from "../lib/limits.js";
 import type * as lib_preview from "../lib/preview.js";
 import type * as lib_tagLinks from "../lib/tagLinks.js";
-import type * as migrations from "../migrations.js";
 import type * as notes from "../notes.js";
 import type * as otp from "../otp.js";
 import type * as tags from "../tags.js";
@@ -43,7 +42,6 @@ declare const fullApi: ApiFromModules<{
   "lib/limits": typeof lib_limits;
   "lib/preview": typeof lib_preview;
   "lib/tagLinks": typeof lib_tagLinks;
-  migrations: typeof migrations;
   notes: typeof notes;
   otp: typeof otp;
   tags: typeof tags;
