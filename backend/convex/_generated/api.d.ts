@@ -13,10 +13,13 @@ import type * as crons from "../crons.js";
 import type * as http from "../http.js";
 import type * as lib_access from "../lib/access.js";
 import type * as lib_allowlist from "../lib/allowlist.js";
+import type * as lib_env from "../lib/env.js";
 import type * as lib_limits from "../lib/limits.js";
 import type * as lib_preview from "../lib/preview.js";
 import type * as lib_tagLinks from "../lib/tagLinks.js";
+import type * as migrations from "../migrations.js";
 import type * as notes from "../notes.js";
+import type * as otp from "../otp.js";
 import type * as tags from "../tags.js";
 import type * as users from "../users.js";
 
@@ -32,10 +35,13 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/access": typeof lib_access;
   "lib/allowlist": typeof lib_allowlist;
+  "lib/env": typeof lib_env;
   "lib/limits": typeof lib_limits;
   "lib/preview": typeof lib_preview;
   "lib/tagLinks": typeof lib_tagLinks;
+  migrations: typeof migrations;
   notes: typeof notes;
+  otp: typeof otp;
   tags: typeof tags;
   users: typeof users;
 }>;

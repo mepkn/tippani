@@ -20,6 +20,19 @@ export const strings = {
     logOut: "Log out",
     noAccount: "No account yet? Sign up",
     haveAccount: "Already have an account? Log in",
+    code: "Code",
+    newPassword: "New password",
+    forgotPassword: "Forgot password?",
+    back: "Back",
+    verifyTitle: "Check your email",
+    verifySubtitle: (email: string) => `Enter the 6-digit code we sent to ${email}.`,
+    verify: "Verify",
+    forgotTitle: "Reset your password",
+    forgotSubtitle: "We'll email you a 6-digit code.",
+    sendCode: "Send code",
+    resetTitle: "Choose a new password",
+    resetSubtitle: (email: string) => `Enter the code we sent to ${email} and a new password.`,
+    resetPassword: "Reset password",
   },
 
   list: {
@@ -139,5 +152,8 @@ export const strings = {
     passwordTooShort: "The password must be at least 8 characters.",
     invalidCredentials: "Wrong email or password.",
     accountExists: "An account with this email already exists. Log in instead.",
+    invalidCode: "That code is wrong or has expired.",
+    emailFailed: "Couldn't send the email. Try again in a minute.",
+    resetFailed: "Couldn't send a reset code.",
   } as Record<string, string>,
 };
