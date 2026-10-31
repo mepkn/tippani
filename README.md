@@ -121,7 +121,7 @@ the VPS, and the Android app built with EAS under the personal Expo account.
   `npx convex deployment token create note-shote-deploy --deployment praveen-nirmalkar:note-shote:production --save-env .env.prod.local`.
 - `mobile/.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
 - On the production Convex deployment: `JWT_PRIVATE_KEY`, `JWKS` (`npx @convex-dev/auth --prod`),
-  `SITE_URL=noteshote://` and `ALLOWED_EMAILS`.
+  `SITE_URL=noteshote://auth` (a bare `noteshote://` breaks code emails: Convex Auth strips the trailing `/`), `ALLOWED_EMAILS`, `RESEND_API_KEY`, and `KUNJI_SECRET` / `KUNJI_URL` for kunji.
 - `npx eas-cli init` (via `scripts/eas.sh init`) links the EAS project and writes `extra.eas.projectId`;
   the EAS environments `preview` and `production` need `EXPO_PUBLIC_CONVEX_URL` set to the production URL.
 - VPS: `DEPLOY_DIR=/var/www/note-shote`, owned by the deploy user. System Caddy block:
