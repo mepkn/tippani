@@ -122,6 +122,39 @@ async function removeNote(ctx: MutationCtx, note: Doc<"notes">): Promise<void> {
   await ctx.db.delete("notes", note._id);
 }
 
+// Shared by create and kunji's create_note.
+export async function insertNote(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  args: { title?: string; body?: string; tagIds?: Id<"tags">[] },
+): Promise<Id<"notes">> {
+  const title = normaliseTitle(args.title ?? "");
+  const body = checkBody(args.body ?? "");
+  const tagIds = await checkTagIds(ctx, userId, args.tagIds ?? []);
+  const _id = await ctx.db.insert("notes", {
+    userId,
+    title,
+    body,
+    searchText: `${title}\n${body}`,
+    tagIds,
+    pinned: false,
+    archived: false,
+    version: 1,
+    updatedAt: Date.now(),
+  });
+  await syncNoteTags(ctx, userId, _id, tagIds);
+  return _id;
+}
+
+// Shared by kunji's append_to_note; same limits as save.
+export async function appendToNote(ctx: MutationCtx, note: Doc<"notes">, text: string): Promise<Doc<"notes">> {
+  if (note.deletedAt !== undefined) throw new ConvexError("noteInTrash");
+  const body = checkBody(note.body === "" ? text : `${note.body.replace(/\n+$/, "")}\n${text}`);
+  const patch = { body, searchText: `${note.title}\n${body}`, version: note.version + 1, updatedAt: Date.now() };
+  await ctx.db.patch("notes", note._id, patch);
+  return { ...note, ...patch };
+}
+
 // One view, paginated. Notes lists pinned notes first: the index orders
 // pinned (true after false) before updatedAt, and the range is descending.
 export const list = query({
@@ -202,22 +235,7 @@ export const create = mutation({
   returns: v.object({ _id: v.id("notes") }),
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
-    const title = normaliseTitle(args.title ?? "");
-    const body = checkBody(args.body ?? "");
-    const tagIds = await checkTagIds(ctx, userId, args.tagIds ?? []);
-    const _id = await ctx.db.insert("notes", {
-      userId,
-      title,
-      body,
-      searchText: `${title}\n${body}`,
-      tagIds,
-      pinned: false,
-      archived: false,
-      version: 1,
-      updatedAt: Date.now(),
-    });
-    await syncNoteTags(ctx, userId, _id, tagIds);
-    return { _id };
+    return { _id: await insertNote(ctx, userId, args) };
   },
 });
 
