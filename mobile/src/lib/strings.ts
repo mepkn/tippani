@@ -137,6 +137,22 @@ export const strings = {
   },
 
   // Server error codes (plain-string ConvexErrors).
+  update: {
+    section: "App version",
+    version: (current: string) => `Version ${current}`,
+    check: "Check for updates",
+    availableTitle: "Update available",
+    availableMessage: (tag: string, current: string) =>
+      `Version ${tag} is available (you have ${current}). Download and install it now?`,
+    install: "Update",
+    later: "Later",
+    upToDateTitle: "You're up to date",
+    upToDateMessage: (current: string) => `${current} is the latest version.`,
+    devTitle: "Updates are off",
+    devMessage: "This is a development build.",
+    failedTitle: "Update failed",
+  },
+
   errors: {
     notAuthenticated: "Your session has expired. Please log in again.",
     notAllowed: "This account isn't allowed to use this app.",

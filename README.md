@@ -27,6 +27,7 @@ The Convex backend in `backend/` serves both. There is no root `package.json`: `
 - Limits (server-enforced): 100 KB body (UTF-8 bytes), 200-char title, 20 tags per note,
   50-char tag names.
 - Light, dark or system theme.
+- Update check (Android): on launch (and Settings → Check for updates) the app compares its build with the latest GitHub release, downloads the new APK, opens Android's installer, and deletes the downloaded APK on the next launch.
 
 ## Stack
 
@@ -164,6 +165,7 @@ adb install -r mobile/dist/note-shote-preview-*.apk
   - `schema.ts`: `notes`, `tags`, `noteTags` (the join table mirroring `notes.tagIds`), plus the Convex Auth tables.
   - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up, sign-in and reset before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions. Sign-up and password reset need a 6-digit code by email (`otp.ts`, sent through Resend from `Note Shote <noreply@send.pknspace.com>`; without `RESEND_API_KEY` the code is only logged in the `convex dev` output). Users from before verification are marked verified by the one-off `migrations:markUsersVerified`. `getOwnedNote` / `getOwnedTag` give the same error for missing and foreign ids.
   - `kunji.ts` + `lib/kunji.ts`: the kunji app contract (`GET /kunji/tools`, `POST /kunji/access`, `POST /kunji/call`, Bearer `KUNJI_SECRET`). Tools `search_notes`, `get_note`, `create_note`, `append_to_note` run as the single verified user with kunji's email; writes share `insertNote` / `appendToNote` with `notes.ts`, and nothing deletes or rewrites text.
+- **Updates** (`mobile/src/lib/update.ts`): the Release workflow builds with `EXPO_PUBLIC_COMMIT` set to the short SHA, the same as the release tag. On launch the app asks GitHub for the latest release; a different tag offers the update. The APK is downloaded to the app's cache (`update/`) and opened with `INSTALL_PACKAGE` (needs `REQUEST_INSTALL_PACKAGES`). Every launch deletes that folder. Builds without a SHA (dev) skip the check.
   - `notes.ts`: list, byTag, search, get, create, save (last write wins; `version` bumps, a stale `baseVersion` still saves), setTags, setPinned, setArchived, trash, restore, deleteForever, emptyTrash, and the internal `purgeTrash` run daily by `crons.ts`. `searchText` (`title + "\n" + body`) is rewritten on every save.
   - `tags.ts`: list (with note counts), create, rename, remove. Names are trimmed and unique per user ignoring case. Counts are `tags.noteCount`, kept in step by `lib/tagLinks.ts` (every `noteTags` insert and delete goes through it), so listing tags never counts join rows. Removing a tag deletes it at once and clears its join rows and note `tagIds` in batches of 100.
   - `users.ts`: `me`, for the email in Settings.

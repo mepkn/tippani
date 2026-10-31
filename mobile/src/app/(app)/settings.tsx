@@ -10,6 +10,8 @@ import { CmpSegmented } from "@/components/cmp/cmp-segmented";
 import { CmpText } from "@/components/cmp/cmp-text";
 import { usePreferences, type ThemePref } from "@/lib/preferences";
 import { strings } from "@/lib/strings";
+import { currentCommit } from "@/lib/update";
+import { runUpdateCheck } from "@/lib/use-update-check";
 
 const s = strings.settings;
 
@@ -64,6 +66,11 @@ export default function SettingsScreen() {
             label: s.themes[value],
           }))}
         />
+      </Section>
+
+      <Section title={strings.update.section}>
+        <CmpText variant="muted">{strings.update.version(currentCommit)}</CmpText>
+        <CmpButton variant="outline" label={strings.update.check} onPress={() => void runUpdateCheck(true)} />
       </Section>
     </ScrollView>
   );

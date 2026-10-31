@@ -24,6 +24,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.pknspace.noteshote",
+      "permissions": ["REQUEST_INSTALL_PACKAGES"],
       "softwareKeyboardLayoutMode": "resize"
     },
     "plugins": [

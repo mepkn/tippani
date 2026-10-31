@@ -83,6 +83,8 @@ jobs:
       - name: Build APK
         run: |
           mkdir -p dist
+          # The in-app update check compares this with the latest release's tag.
+          export EXPO_PUBLIC_COMMIT="${GITHUB_SHA::7}"
           npx --yes eas-cli@latest build --platform android --profile preview \
             --local --non-interactive --output "dist/note-shote.apk"
 
