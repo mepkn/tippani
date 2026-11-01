@@ -1,4 +1,4 @@
-// Draws the note-shote card mark in the pastel-blue palette.
+// Draws the tippani card mark in the pastel-blue palette.
 import { Resvg } from "@resvg/resvg-js";
 import { writeFileSync } from "node:fs";
 

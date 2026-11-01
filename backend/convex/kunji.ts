@@ -7,7 +7,7 @@ import { MAX_TAGS_PER_NOTE } from "./lib/limits";
 import { firstLine, preview } from "./lib/preview";
 import { appendToNote, insertNote } from "./notes";
 
-// Note Shote's tools for kunji (kunji SPEC.md → App contract). Each runs as the
+// Tippani's tools for kunji (kunji SPEC.md → App contract). Each runs as the
 // user kunji named and only ever sees that user's notes. Writes: create_note
 // and append_to_note; nothing deletes, archives or rewrites existing text.
 

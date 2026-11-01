@@ -20,7 +20,7 @@ if [ "$where" = cloud ]; then
 fi
 
 mkdir -p dist
-out="dist/note-shote-$profile-$(date +%Y%m%d-%H%M).$ext"
+out="dist/tippani-$profile-$(date +%Y%m%d-%H%M).$ext"
 ../scripts/eas.sh build --platform android --profile "$profile" --local --non-interactive --output "$out"
 echo "› Built $out"
 if [ "$ext" = apk ]; then

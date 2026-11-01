@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Note Shote",
-    "slug": "note-shote",
+    "name": "Tippani",
+    "slug": "tippani",
     "platforms": [
       "android",
       "ios"
@@ -9,11 +9,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "noteshote",
+    "scheme": "tippani",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.pknspace.noteshote"
+      "bundleIdentifier": "com.pknspace.tippani"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.pknspace.noteshote",
+      "package": "com.pknspace.tippani",
       "permissions": ["REQUEST_INSTALL_PACKAGES"],
       "softwareKeyboardLayoutMode": "resize"
     },
@@ -51,7 +51,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "7766fb96-40ab-490e-a537-217e89bab586"
+        "projectId": "994b66fe-da04-4053-9048-ce21effd1899"
       }
     },
     "owner": "mepkn"

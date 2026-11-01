@@ -1,6 +1,6 @@
-# note-shote — Build Spec
+# tippani — Build Spec
 
-A private Markdown notes app for my Android phone and the web at `https://note-shote.pknspace.com`.
+A private Markdown notes app for my Android phone and the web at `https://tippani.pknspace.com`.
 Many notes, each with a title, a Markdown body and tags. Notes sync live. Not public. Only
 allowlisted emails can sign in.
 
@@ -192,7 +192,7 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
   - theme: light / dark / system
   - log out
 - English only. Keep strings in `src/lib/strings.ts`.
-- Android: **share text into note-shote** (Android share target) creates a new note with the shared
+- Android: **share text into tippani** (Android share target) creates a new note with the shared
   text as the body. It's optional, so build it last.
 
 ## Stack and conventions (match the other repos)
@@ -231,13 +231,13 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
   - `.env.example` (lists `ALLOWED_EMAILS` under the Convex-side vars, and the deploy vars as placeholders)
   - AGENTS.md, CLAUDE.md, LICENSE
   - `.gitignore` covering `.env*.local` and `.eas-token`
-- App id `com.pknspace.noteshote`, scheme `noteshote`, display name "note-shote".
-- Git remote: `https://github.com/mepkn/note-shote`.
+- App id `com.pknspace.tippani`, scheme `tippani`, display name "tippani".
+- Git remote: `https://github.com/mepkn/tippani`.
 
 ## Deployment
 
-- **Backend:** a new Convex project `note-shote`.
-  - Set `JWT_PRIVATE_KEY` and `JWKS` (`npx @convex-dev/auth`), `SITE_URL=noteshote://`, and
+- **Backend:** a new Convex project `tippani`.
+  - Set `JWT_PRIVATE_KEY` and `JWKS` (`npx @convex-dev/auth`), `SITE_URL=tippani://`, and
     `ALLOWED_EMAILS` on prod.
 - **Web:** deploy the same way as scratch:
   - `npx expo export -p web` produces `dist/`.
@@ -246,17 +246,17 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
   - `DEPLOY_HOST`, `DEPLOY_PORT` and `DEPLOY_DIR` live in `.env.prod.local`. Never write the VPS host,
     IP or port into tracked files.
   - `EXPO_PUBLIC_CONVEX_URL` for the web export comes from `.env.prod.local` too.
-  - One-time VPS setup (done; no sudo needed). `DEPLOY_DIR=/var/www/note-shote`, owned by the
-    deploy user. Block in `/etc/caddy/sites/note-shote.caddy`:
+  - One-time VPS setup (done; no sudo needed). `DEPLOY_DIR=/var/www/tippani`, owned by the
+    deploy user. Block in `/etc/caddy/sites/tippani.caddy`:
     ```caddy
-    http://note-shote.pknspace.com:8080 {
-          root * /var/www/note-shote
+    http://tippani.pknspace.com:8080 {
+          root * /var/www/tippani
           try_files {path} {path}.html /index.html
           encode gzip
           file_server
     }
     ```
-    - Add a cloudflared Public Hostname `note-shote.pknspace.com` → `http://localhost:8080`.
+    - Add a cloudflared Public Hostname `tippani.pknspace.com` → `http://localhost:8080`.
     - Don't try to run sudo; give me the exact one-line command to run.
 - **Android:** EAS under my personal Expo account. Run `source .eas-token` (git-ignored).
   **Never log out or replace the global eas login.** Prefer local builds into `dist/`.

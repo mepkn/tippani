@@ -10,7 +10,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/load-env.sh
 
-URL="https://note-shote.pknspace.com"
+URL="https://tippani.pknspace.com"
 
 load_env web/.env.prod.local
 : "${DEPLOY_HOST:?DEPLOY_HOST is not set in web/.env.prod.local}"

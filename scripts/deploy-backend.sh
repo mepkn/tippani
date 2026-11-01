@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploys backend/convex/ to the production Convex deployment of project "note-shote".
+# Deploys backend/convex/ to the production Convex deployment of project "tippani".
 # Needs CONVEX_DEPLOY_KEY in backend/.env.prod.local (git-ignored; see backend/.env.example).
 #   scripts/deploy-backend.sh            checks, then deploy
 #   DRY_RUN=1 scripts/deploy-backend.sh  preview only: nothing is deployed

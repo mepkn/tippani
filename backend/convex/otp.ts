@@ -1,7 +1,7 @@
 import Resend from "@auth/core/providers/resend";
 import { env } from "./lib/env";
 
-const FROM = "Note Shote <noreply@send.pknspace.com>";
+const FROM = "Tippani <noreply@send.pknspace.com>";
 
 /** A 6-digit code; the modulo bias over 2^32 is negligible. */
 function code(): string {
@@ -34,8 +34,8 @@ export const ResendOTP = Resend({
   async sendVerificationRequest({ identifier: email, token }) {
     await sendCode(
       email,
-      `${token} is your Note Shote code`,
-      `Your Note Shote verification code is ${token}. It expires in 15 minutes.`,
+      `${token} is your Tippani code`,
+      `Your Tippani verification code is ${token}. It expires in 15 minutes.`,
     );
   },
 });
@@ -49,8 +49,8 @@ export const ResendOTPReset = Resend({
   async sendVerificationRequest({ identifier: email, token }) {
     await sendCode(
       email,
-      `${token} is your Note Shote reset code`,
-      `Your Note Shote password reset code is ${token}. It expires in 15 minutes. If you didn't ask for it, ignore this email.`,
+      `${token} is your Tippani reset code`,
+      `Your Tippani password reset code is ${token}. It expires in 15 minutes. If you didn't ask for it, ignore this email.`,
     );
   },
 });

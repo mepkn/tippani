@@ -1,7 +1,7 @@
-# note-shote
+# tippani
 
 A private Markdown notes app: many notes, each with a title, a Markdown body and tags, synced
-live between an Android phone and the web at <https://note-shote.pknspace.com>. Only
+live between an Android phone and the web at <https://tippani.pknspace.com>. Only
 allowlisted emails can sign in.
 
 Platforms: web (a separate Vite app in `web/`, on the VPS) and Android (Expo in `mobile/`, sideloaded APK).
@@ -109,7 +109,7 @@ cd mobile && npm start           # Metro for the development build
 ## Deployment
 
 Three parts: the Convex production deployment `decisive-mockingbird-534`
-(`https://decisive-mockingbird-534.convex.cloud`, project `note-shote`), the static web app on
+(`https://decisive-mockingbird-534.convex.cloud`, project `tippani`), the static web app on
 the VPS, and the Android app built with EAS under the personal Expo account.
 
 ### One-time setup (done, except the VPS and EAS)
@@ -118,24 +118,24 @@ the VPS, and the Android app built with EAS under the personal Expo account.
   the production `VITE_CONVEX_URL` and `DEPLOY_HOST` / `DEPLOY_PORT` / `DEPLOY_DIR`. See the
   `.env.example` next to each. The scripts read them line by line as literal `KEY=VALUE`; they
   are never sourced. Deploy key, run in `backend/`:
-  `npx convex deployment token create note-shote-deploy --deployment praveen-nirmalkar:note-shote:production --save-env .env.prod.local`.
+  `npx convex deployment token create tippani-deploy --deployment praveen-nirmalkar:tippani:production --save-env .env.prod.local`.
 - `mobile/.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
 - On the production Convex deployment: `JWT_PRIVATE_KEY`, `JWKS` (`npx @convex-dev/auth --prod`),
-  `SITE_URL=noteshote://auth` (a bare `noteshote://` breaks code emails: Convex Auth strips the trailing `/`), `ALLOWED_EMAILS`, `RESEND_API_KEY`, and `KUNJI_SECRET` / `KUNJI_URL` for kunji.
+  `SITE_URL=tippani://auth` (a bare `tippani://` breaks code emails: Convex Auth strips the trailing `/`), `ALLOWED_EMAILS`, `RESEND_API_KEY`, and `KUNJI_SECRET` / `KUNJI_URL` for kunji.
 - `npx eas-cli init` (via `scripts/eas.sh init`) links the EAS project and writes `extra.eas.projectId`;
   the EAS environments `preview` and `production` need `EXPO_PUBLIC_CONVEX_URL` set to the production URL.
-- VPS: `DEPLOY_DIR=/var/www/note-shote`, owned by the deploy user. System Caddy block:
+- VPS: `DEPLOY_DIR=/var/www/tippani`, owned by the deploy user. System Caddy block:
 
   ```caddy
-  http://note-shote.pknspace.com:8080 {
-        root * /var/www/note-shote
+  http://tippani.pknspace.com:8080 {
+        root * /var/www/tippani
         try_files {path} /index.html
         encode gzip
         file_server
   }
   ```
 
-  A cloudflared Public Hostname maps `note-shote.pknspace.com` → `http://localhost:8080`.
+  A cloudflared Public Hostname maps `tippani.pknspace.com` → `http://localhost:8080`.
 
 ### Backend
 
@@ -154,7 +154,7 @@ scripts/deploy-web.sh             # checks, build, rsync --delete; Caddy serves 
 
 ```sh
 scripts/build-android.sh preview local
-adb install -r mobile/dist/note-shote-preview-*.apk
+adb install -r mobile/dist/tippani-preview-*.apk
 ```
 
 ## How it works
@@ -163,7 +163,7 @@ adb install -r mobile/dist/note-shote-preview-*.apk
 - **The Android app** (`mobile/`, own `package.json`) uses Expo Router, NativeWind and React Native Reusables. The RNR primitives live in `mobile/src/components/ui/`, and screens only use the app's own wrappers in `mobile/src/components/cmp/cmp-*.tsx` (plus composites built from them: `note-row`, `tag-picker`, `auth-form`). All strings are in `mobile/src/lib/strings.ts`. It imports the backend through the `@convex` alias; `mobile/metro.config.js` watches `../backend/convex` and resolves its packages from `mobile/node_modules`, so EAS builds need only the `mobile/` install. Its scripts load `backend/.env.local` with `node --env-file-if-exists`.
 - **Convex** (`backend/convex/`) is the entire backend.
   - `schema.ts`: `notes`, `tags`, `noteTags` (the join table mirroring `notes.tagIds`), plus the Convex Auth tables.
-  - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up, sign-in and reset before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions. Sign-up and password reset need a 6-digit code by email (`otp.ts`, sent through Resend from `Note Shote <noreply@send.pknspace.com>`; without `RESEND_API_KEY` the code is only logged in the `convex dev` output). `getOwnedNote` / `getOwnedTag` give the same error for missing and foreign ids.
+  - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up, sign-in and reset before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions. Sign-up and password reset need a 6-digit code by email (`otp.ts`, sent through Resend from `Tippani <noreply@send.pknspace.com>`; without `RESEND_API_KEY` the code is only logged in the `convex dev` output). `getOwnedNote` / `getOwnedTag` give the same error for missing and foreign ids.
   - `kunji.ts` + `lib/kunji.ts`: the kunji app contract (`GET /kunji/tools`, `POST /kunji/access`, `POST /kunji/call`, Bearer `KUNJI_SECRET`). Tools `search_notes`, `get_note`, `create_note`, `append_to_note` run as the single verified user with kunji's email; writes share `insertNote` / `appendToNote` with `notes.ts`, and nothing deletes or rewrites text.
 - **Updates** (`mobile/src/lib/update.ts`): the Release workflow builds with `EXPO_PUBLIC_COMMIT` set to the short SHA, the same as the release tag. On launch the app asks GitHub for the latest release; a different tag offers the update. The APK is downloaded to the app's cache (`update/`) and opened with `INSTALL_PACKAGE` (needs `REQUEST_INSTALL_PACKAGES`). Every launch deletes that folder. Builds without a SHA (dev) skip the check.
   - `notes.ts`: list, byTag, search, get, create, save (last write wins; `version` bumps, a stale `baseVersion` still saves), setTags, setPinned, setArchived, trash, restore, deleteForever, emptyTrash, and the internal `purgeTrash` run daily by `crons.ts`. `searchText` (`title + "\n" + body`) is rewritten on every save.
