@@ -2,7 +2,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import * as IntentLauncher from "expo-intent-launcher";
 import { Platform } from "react-native";
 
-// In-app updates for the sideloaded APK, like agentdeck's: the release build
+// In-app updates for the sideloaded APK, like sarathi's: the release build
 // carries its short commit SHA (EXPO_PUBLIC_COMMIT, set by the Release
 // workflow) and releases are tagged with the same SHA, so a different tag on
 // the latest GitHub release means an update. The APK is downloaded into the
