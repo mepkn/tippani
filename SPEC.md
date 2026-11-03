@@ -4,9 +4,9 @@ A private Markdown notes app for my Android phone and the web at `https://tippan
 Many notes, each with a title, a Markdown body and tags. Notes sync live. Not public. Only
 allowlisted emails can sign in.
 
-Sister project of `../yaad-dila`, `../scratch` and `../alp` (Expo + Convex). **Copy their structure,
+Sister project of `../suchna`, `../scratch` and `../alp` (Expo + Convex). **Copy their structure,
 scripts and conventions** wherever this spec doesn't say otherwise. Before starting, read:
-- yaad-dila: README, `convex/auth.ts`, `convex/lib/allowlist.ts`, `convex/lib/access.ts`,
+- suchna: README, `convex/auth.ts`, `convex/lib/allowlist.ts`, `convex/lib/access.ts`,
   `convex/tags.ts` (the tags and join-table pattern), `scripts/`, `src/components/cmp/`
 - `../scratch/SPEC.md` (live sync rules)
 
@@ -85,7 +85,7 @@ Use `react-native-enriched-markdown` (Software Mansion, MIT). Read its README an
     "codeHighlightLanguages": ["typescript", "javascript", "python", "go", "bash", "json"]
   }
   ```
-- It needs the New Architecture (the default) and a **development build**, like yaad-dila. It doesn't
+- It needs the New Architecture (the default) and a **development build**, like suchna. It doesn't
   run in Expo Go. Check the library's compatibility table against the Expo SDK's React Native version
   before installing.
 - Its `postinstall` downloads native assets, so don't install with `--ignore-scripts`.
@@ -103,12 +103,12 @@ Same as scratch and alp:
   - **Fails closed:** if it's unset or empty, nobody can sign in.
   - Generic `ConvexError("notAllowed")`, shown as "This account isn't allowed to use this app."
     It must not reveal which emails are on the list.
-  - Copy `isAllowedEmail` from `../yaad-dila/convex/lib/allowlist.ts`, unchanged.
+  - Copy `isAllowedEmail` from `../suchna/convex/lib/allowlist.ts`, unchanged.
 - Set it on **every** deployment (local and prod): `npx convex env set ALLOWED_EMAILS <email>`.
   **Ask me which email to use; don't put it in the repo.**
 - Every note and tag is owned by a user. Every function gets the user from `getAuthUserId` and checks
   ownership of every id passed in (`getOwnedNote`, `getOwnedTag` in `convex/lib/access.ts`, like
-  yaad-dila). Missing and foreign ids give the same error.
+  suchna). Missing and foreign ids give the same error.
 - No public queries or HTTP endpoints besides the Convex Auth routes.
 
 ## Data model
@@ -139,7 +139,7 @@ tags: defineTable({
 })
   .index("by_user_name", ["userId", "name"]),
 
-noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-dila's reminderTags
+noteTags: defineTable({                   // mirrors notes.tagIds, as in suchna's reminderTags
   userId: v.id("users"),
   noteId: v.id("notes"),
   tagId: v.id("tags"),
@@ -175,12 +175,12 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
 - Internal: `notes.purgeTrash` internalMutation (for the cron)
 - Error codes are plain-string `ConvexError`s: `notAuthenticated`, `notAllowed`, `noteNotFound`,
   `tagNotFound`, `titleTooLong`, `bodyTooLong`, `tooManyTags`, `tagNameInvalid`, `tagNameTaken`,
-  `notInTrash`. The client translates them like yaad-dila's `src/lib/errors.ts`.
+  `notInTrash`. The client translates them like suchna's `src/lib/errors.ts`.
 - **Read `convex/_generated/ai/guidelines.md` before writing Convex code.**
 
 ## Screens (Expo Router)
 
-- `(auth)/sign-in`, `(auth)/sign-up`: the same form component as yaad-dila.
+- `(auth)/sign-in`, `(auth)/sign-up`: the same form component as suchna.
 - `(app)/index`: the note list, with search, the tag filter, view tabs (Notes / Archive / Trash) and
   the "New note" button.
 - `(app)/note`: one note, **chosen by query parameter: `/note?id=<id>`**. Use a fixed route, not
@@ -209,7 +209,7 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
   - Lists with a search box at the top, and screens without inputs, need nothing.
   - No fixed offsets such as `mb-[40vh]`, no RN `KeyboardAvoidingView`, no bottom sheets.
 - `@/` → `src/`, `@convex/` → `convex/`. Node 22.18+ (`.nvmrc` = 22).
-- Scripts (copy from yaad-dila):
+- Scripts (copy from suchna):
   - `typecheck`, `lint`, `test`, and `check` (all three)
   - `deploy:backend` (reads `CONVEX_DEPLOY_KEY` from `.env.prod.local` with the shared literal read loop)
   - `deploy:web` and `deploy:web:dry`
@@ -227,7 +227,7 @@ noteTags: defineTable({                   // mirrors notes.tagIds, as in yaad-di
   - tag name uniqueness (case-insensitive)
   - Stub `ALLOWED_EMAILS` with `vi.stubEnv` in the test helper.
 - Repo files:
-  - README (same layout as yaad-dila, plus the editor round-trip findings)
+  - README (same layout as suchna, plus the editor round-trip findings)
   - `.env.example` (lists `ALLOWED_EMAILS` under the Convex-side vars, and the deploy vars as placeholders)
   - AGENTS.md, CLAUDE.md, LICENSE
   - `.gitignore` covering `.env*.local` and `.eas-token`
